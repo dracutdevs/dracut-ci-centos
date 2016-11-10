@@ -5,7 +5,7 @@
 import os, json, urllib, subprocess, sys, argparse, fcntl, time
 
 github_base = "https://github.com/dracutdevs/"
-git_name = "dracut-centos-ci"
+git_name = "dracut-ci-centos"
 
 debug = False
 reboot_count = 0
@@ -148,7 +148,7 @@ def main():
 		else:
 			branch = ''
 
-		cmd = "yum install -y git && git clone %s%s.git && %s/slave/bootstrap.sh %s" % (github_base, git_name, git_name, branch)
+		cmd = "yum install -y git && git clone %s%s.git && ./%s/slave/bootstrap.sh %s" % (github_base, git_name, git_name, branch)
 		remote_exec(host, cmd)
 
 		cmd = "%s/slave/testsuite.sh" % git_name
