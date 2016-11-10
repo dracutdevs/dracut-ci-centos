@@ -150,7 +150,7 @@ def main():
 
                 if args.branch:
                         branch = args.branch
-                else
+                else:
                         branch = ''
 
 		cmd = "yum install -y git && git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
