@@ -142,26 +142,22 @@ def main():
 
 	try:
 		if args.pr:
-			branch="pr:%s" % args.pr
+			sha = "pr:%s" % args.pr
 		elif args.branch:
-			branch = args.branch
+			sha = args.branch
 		else:
-			branch = ''
+			sha = ''
 
-		cmd = "yum install -y git && git clone %s%s.git && ./%s/slave/bootstrap.sh %s" % (github_base, git_name, git_name, branch)
+                if args.branch:
+                        branch = args.branch
+                else
+                        branch = ''
+
+		cmd = "yum install -y git && git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
 		remote_exec(host, cmd)
 
-		cmd = "%s/slave/testsuite.sh" % git_name
+		cmd = "%s/slave/testsuite.sh '%s'" % (git_name, branch)
 		remote_exec(host, cmd)
-
-		#for i in range(4):
-		#	cmd = "exit `journalctl --list-boots | wc -l`"
-		#	remote_exec(host, cmd, reboot_count)
-		#
-		#	reboot_host(host)
-		#
-		#	cmd = "systemctl --failed --all | grep -q '^0 loaded'"
-		#	remote_exec(host, cmd)
 
 		print("All tests succeeded.")
 
