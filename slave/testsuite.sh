@@ -3,4 +3,4 @@
 set -xe
 
 cd dracut/test
-make check
+make V=1 check
