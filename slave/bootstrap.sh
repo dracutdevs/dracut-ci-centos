@@ -30,4 +30,5 @@ case "$sha" in
 	;;
 esac
 
-yum -y install $(<test/test-rpms.txt)
+yum -y install qemu-kvm $(<test/test-rpms.txt)
+modprobe kvm_intel nested=1 || modprobe kvm_amd nested=1
