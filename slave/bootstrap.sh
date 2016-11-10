@@ -10,7 +10,11 @@ if [[ $branch != "RHEL-7" ]]; then
     exit $?
 fi
 
+[[ -d dracut ]] && rm -fr dracut
+
 git clone ${branch:+-b "$branch"} https://github.com/dracutdevs/dracut.git
+
+cd dracut
 
 case "$sha" in
     pr:*)
