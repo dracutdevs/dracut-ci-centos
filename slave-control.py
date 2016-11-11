@@ -122,7 +122,10 @@ def main():
 
 		return 0
 
-	if args.host:
+        if args.branch == "RHEL-6":
+                args.ver = '6'
+
+        if args.host:
 		host = args.host
 		ssid = None
 	else:
