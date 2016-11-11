@@ -13,5 +13,5 @@ fi
 ./configure --disable-documentation
 
 cd test
-make V=1 SKIP="70" check
+make V=1 check
 exit $?
