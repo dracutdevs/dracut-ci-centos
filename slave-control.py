@@ -156,7 +156,7 @@ def main():
 		cmd = "yum install -y git && git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
 		remote_exec(host, cmd)
 
-		cmd = "%s/slave/testsuite.sh '%s'" % (git_name, branch)
+		cmd = "TESTS='%s' %s/slave/testsuite.sh '%s'" % (os.environ.get("TESTS", ""), git_name, branch)
 		remote_exec(host, cmd)
 
 		print("All tests succeeded.")
