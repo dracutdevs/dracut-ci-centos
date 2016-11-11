@@ -29,6 +29,6 @@ case "$sha" in
 	git checkout "$sha"
 	;;
 esac
-
+yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum -y install qemu-kvm $(<test/test-rpms.txt)
 modprobe kvm_intel nested=1 || modprobe kvm_amd nested=1
