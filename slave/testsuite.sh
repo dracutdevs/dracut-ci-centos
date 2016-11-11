@@ -4,12 +4,6 @@ set -xe
 
 cd dracut
 
-if [[ $TESTS == rpm ]]; then
-    ./configure
-    make rpm
-    exit $?
-fi
-
 ./configure --disable-documentation
 
 cd test
