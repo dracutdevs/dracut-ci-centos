@@ -2,10 +2,15 @@
 
 set -xe
 
+cd dracut
+
 if [[ $TESTS == rpm ]]; then
+    ./configure
     make rpm
     exit $?
 fi
+
+./configure --disable-documentation
 
 cd dracut/test
 make V=1 SKIP="70" check
