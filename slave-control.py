@@ -127,8 +127,14 @@ def main():
 		ssid = None
 	else:
 		params = { "key": key, "ver": args.ver, "arch": args.arch }
-		json_data = duffy_cmd("/Node/get", params)
-		data = json.loads(json_data)
+                while True:
+                        try:
+		                json_data = duffy_cmd("/Node/get", params)
+		                data = json.loads(json_data)
+                        except ValueError:
+                                continue
+                        else:
+                                break
 
 		host = data['hosts'][0]
 		ssid = data['ssid']
