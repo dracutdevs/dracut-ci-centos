@@ -12,6 +12,6 @@ fi
 
 ./configure --disable-documentation
 
-cd dracut/test
+cd test
 make V=1 SKIP="70" check
 exit $?
