@@ -26,7 +26,7 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
     [[ -c /dev/kvm && -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm && ARGS=""
     [[ -c /dev/kvm && -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm && ARGS=""
 
-    $BIN $ARGS  \
+    nohup $BIN $ARGS  \
         -drive format=qcow2,index=0,media=disk,file=/root/F25CI.qcow2 \
         -m 2048M \
         -smp 2 \
@@ -34,7 +34,7 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
         -device e1000,netdev=user.0 \
         -nographic \
         -cpu +mpx,+abm,+pdpe1gb,+rdrand,+f16c,+osxsave,+pdcm,+xtpr,+tm2,+est,+smx,+vmx,+ds_cpl,+monitor,+dtes64,+pbe,+tm,+ht,+ss,+acpi,+ds,+vme \
-        -netdev user,id=user.0,hostfwd=tcp::22222-:22 &> /var/tmp/qemu.out &
+        -netdev user,id=user.0,hostfwd=tcp::22222-:22 &
 
     for (( i=0; i < 60; i++ )); do
         ret=0
