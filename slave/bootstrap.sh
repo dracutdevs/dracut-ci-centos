@@ -5,9 +5,17 @@ set -xe
 sha="$1"
 branch="$2"
 
+if grep -q -F vmx /proc/cpuinfo; then
+    modprobe -r kvm_intel || :
+    modprobe kvm_intel nested=1
+elif grep -q -F svm /proc/cpuinfo; then
+    modprobe -r kvm_amd || :
+    modprobe kvm_amd nested=1
+else
+    exit 1
+fi
+
 (
-    modprobe kvm_intel nested=1 || :
-    modprobe kvm_amd nested=1 || :
     firewall-cmd --zone=public --add-port=22222/tcp --permanent
     firewall-cmd --reload
 ) &
@@ -29,7 +37,7 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
     nohup $BIN $ARGS  \
         -drive format=qcow2,index=0,media=disk,file=/root/F25CI.qcow2 \
         -m 2048M \
-        -smp 2 \
+        -smp $(nproc) \
         -no-reboot \
         -device e1000,netdev=user.0 \
         -nographic \
