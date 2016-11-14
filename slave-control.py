@@ -24,6 +24,7 @@ def duffy_cmd(cmd, params):
                 try:
                         ret = urllib.urlopen(url).read()
                 except IOError:
+                        time.sleep(1)
                         continue
                 return ret
         raise IOError
