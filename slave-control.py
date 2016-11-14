@@ -36,7 +36,7 @@ def exec_cmd(cmd):
 
 	return p.returncode
 
-def remote_exec(host, remote_cmd, expected_ret = 0):
+def remote_exec(host, remote_cmd, port = 22, expected_ret = 0):
 	cmd = [ '/usr/bin/ssh',
 		'-t',
 		'-o', 'UserKnownHostsFile=/dev/null',
@@ -44,10 +44,30 @@ def remote_exec(host, remote_cmd, expected_ret = 0):
 		'-o', 'ConnectTimeout=180',
 		'-o', 'TCPKeepAlive=yes',
 		'-o', 'ServerAliveInterval=2',
+                '-p', str(port),
 		'-l', 'root',
 		host, remote_cmd ]
 
-	print(">>> Executing remote command: '%s' on %s" % (remote_cmd, host))
+	print(">>> Executing remote command: '%s' on %s port %d" % (remote_cmd, host, port))
+
+	start = time.time()
+	ret = exec_cmd(cmd)
+	end = time.time()
+
+	print("<<< Remote command finished after %.1f seconds, return code = %d" % (end - start, ret))
+
+	if ret != expected_ret:
+		raise Exception("Remote command returned code %d, expected %d. Bailing out." % (ret, expected_ret))
+
+def remote_scp(host, src, dst, port = 22, expected_ret = 0):
+	cmd = [ '/usr/bin/scp',
+		'-o', 'UserKnownHostsFile=/dev/null',
+		'-o', 'StrictHostKeyChecking=no',
+		'-o', 'ConnectTimeout=180',
+                '-P', str(port),
+                src, dst ]
+
+	print(">>> Copying: '%s' to %s port %d" % (src, dst, port))
 
 	start = time.time()
 	ret = exec_cmd(cmd)
@@ -59,7 +79,6 @@ def remote_exec(host, remote_cmd, expected_ret = 0):
 		raise Exception("Remote command returned code %d, expected %d. Bailing out." % (ret, expected_ret))
 
 def ping_host(host):
-
 	cmd = [ '/usr/bin/ping', '-q', '-c', '1', '-W', '10', host ]
 	print("Pinging host %s ..." % host)
 
@@ -162,11 +181,15 @@ def main():
                 else:
                         branch = ''
 
+                if not branch.startswith("RHEL-"):
+                        remove_scp("~/F25CI.qcow2.xz", "root@" + host + ":")
+
 		cmd = "yum install -y git && git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
 		remote_exec(host, cmd)
 
 		cmd = "TESTS='%s' %s/slave/testsuite.sh '%s'" % (os.environ.get("TESTS", ""), git_name, branch)
-		remote_exec(host, cmd)
+
+		remote_exec(host, cmd, port=(branch.startswith("RHEL-") and 22 or 22222))
 
 		print("All tests succeeded.")
 

@@ -5,9 +5,28 @@ set -xe
 sha="$1"
 branch="$2"
 
-if [[ $branch != "RHEL-7" ]]; then
-    :
-    exit $?
+modprobe kvm_intel nested=1 || :
+modprobe kvm_amd nested=1 || :
+
+if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
+    yum -y install qemu-kvm
+    unxz F25CI.qcow2.xz
+    qemu-kvm  \
+        -drive format=qcow2,index=0,media=disk,file=/root/F25CI.qcow2 \
+        -m 2048M \
+        -smp 2 \
+        -no-reboot \
+        -device e1000,netdev=user.0 \
+        -netdev user,id=user.0,hostfwd=tcp::22222-:22 &
+
+    for (( i=0; i < 60; i++ )); do
+        ssh root@127.0.0.2 -p 22222 \
+            "git clone https://github.com/dracutdevs/dracut-ci-centos; ./dracut-ci-centos/slave/bootstrap.sh $sha $branch" \
+            && break
+        sleep 1
+    done
+    (( i == 60 )) && exit 1
+    exit 0
 fi
 
 [[ -d dracut ]] && rm -fr dracut
@@ -29,7 +48,11 @@ case "$sha" in
 	git checkout "$sha"
 	;;
 esac
-yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-yum -y install qemu-kvm $(<test/test-rpms.txt)
-modprobe kvm_intel nested=1 || :
-modprobe kvm_amd nested=1 || :
+
+if [[ $branch =~ RHEL-* ]]; then
+     yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+     yum -y install qemu-kvm $(<test/test-rpms.txt)
+fi
+
+
+exit 0
