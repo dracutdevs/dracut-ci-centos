@@ -21,8 +21,8 @@ fi
 ) &
 
 if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
-    if [[ -f F25CI.qcow2.gz ]]; then
-        gunzip F25CI.qcow2.gz &
+    if [[ -f /srv/F25CI.qcow2.gz ]]; then
+        gunzip /srv/F25CI.qcow2.gz &
     fi
 
     wait
@@ -34,7 +34,7 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
     [[ -c /dev/kvm && -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm && ARGS=""
 
     systemd-run $BIN $ARGS  \
-        -drive format=qcow2,index=0,media=disk,file=/root/F25CI.qcow2 \
+        -drive format=qcow2,index=0,media=disk,file=/srv/F25CI.qcow2 \
         -m 2048M \
         -smp $(nproc) \
         -no-reboot \

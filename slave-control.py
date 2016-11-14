@@ -84,6 +84,20 @@ def remote_scp(src, dst, port = 22, expected_ret = 0):
 	if ret != expected_ret:
 		raise Exception("Remote command returned code %d, expected %d. Bailing out." % (ret, expected_ret))
 
+def remote_rsync(src, dst, expected_ret = 0):
+	cmd = [ '/usr/bin/rsync', '-Pavor', src, dst ]
+
+	print(">>> Copying: '%s' to %s" % (src, dst))
+
+	start = time.time()
+	ret = exec_cmd(cmd)
+	end = time.time()
+
+	print("<<< Command finished after %.1f seconds, return code = %d" % (end - start, ret))
+
+	if ret != expected_ret:
+		raise Exception("Command returned code %d, expected %d. Bailing out." % (ret, expected_ret))
+
 def ping_host(host):
 	cmd = [ '/usr/bin/ping', '-q', '-c', '1', '-W', '10', host ]
 	print("Pinging host %s ..." % host)
@@ -188,10 +202,14 @@ def main():
                         branch = ''
 
                 if not branch.startswith("RHEL-"):
-                        remote_scp("%s/F25CI.qcow2.gz" % os.environ.get("HOME", "."), "root@" + host + ":")
-
-		cmd = "yum install -y git qemu-kvm && git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
-		remote_exec(host, cmd)
+		        cmd = "yum install -y git qemu-kvm & printf '[srv]\npath = /srv\nread only = no\n' > /etc/rsyncd.conf; systemctl start rsyncd; firewall-cmd --zone=public --add-port=873/tcp --permanent; firewall-cmd --reload; wait;"
+		        remote_exec(host, cmd)
+                        remote_rsync("%s/F25CI.qcow2.gz" % os.environ.get("HOME", "."), "rsync://" + host + "/srv/")
+		        cmd = "git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
+		        remote_exec(host, cmd)
+                else:
+		        cmd = "yum install -y git qemu-kvm && git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
+		        remote_exec(host, cmd)
 
 		cmd = "TESTS='%s' %s/slave/testsuite.sh '%s'" % (os.environ.get("TESTS", ""), git_name, branch)
 
