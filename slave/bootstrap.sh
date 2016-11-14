@@ -9,14 +9,23 @@ modprobe kvm_intel nested=1 || :
 modprobe kvm_amd nested=1 || :
 
 if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
-    yum -y install qemu-kvm
-    unxz F25CI.qcow2.xz
-    qemu-kvm  \
+    yum -y install qemu-kvm xz
+
+    unxz -T0 F25CI.qcow2.xz
+
+    [[ -x /usr/bin/qemu ]] && BIN=/usr/bin/qemu && ARGS=""
+    $(lsmod | grep -q '^kqemu ') && BIN=/usr/bin/qemu && ARGS="-kernel-kqemu "
+    [[ -c /dev/kvm && -x /usr/bin/kvm ]] && BIN=/usr/bin/kvm && ARGS=""
+    [[ -c /dev/kvm && -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm && ARGS=""
+    [[ -c /dev/kvm && -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm && ARGS=""
+
+    $BIN $ARGS  \
         -drive format=qcow2,index=0,media=disk,file=/root/F25CI.qcow2 \
         -m 2048M \
         -smp 2 \
         -no-reboot \
         -device e1000,netdev=user.0 \
+        -nographic \
         -netdev user,id=user.0,hostfwd=tcp::22222-:22 &
 
     for (( i=0; i < 60; i++ )); do

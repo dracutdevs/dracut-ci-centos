@@ -59,7 +59,7 @@ def remote_exec(host, remote_cmd, port = 22, expected_ret = 0):
 	if ret != expected_ret:
 		raise Exception("Remote command returned code %d, expected %d. Bailing out." % (ret, expected_ret))
 
-def remote_scp(host, src, dst, port = 22, expected_ret = 0):
+def remote_scp(src, dst, port = 22, expected_ret = 0):
 	cmd = [ '/usr/bin/scp',
 		'-o', 'UserKnownHostsFile=/dev/null',
 		'-o', 'StrictHostKeyChecking=no',
@@ -182,7 +182,7 @@ def main():
                         branch = ''
 
                 if not branch.startswith("RHEL-"):
-                        remove_scp("~/F25CI.qcow2.xz", "root@" + host + ":")
+                        remote_scp("%s/F25CI.qcow2.xz" % os.environ.get("HOME", "."), "root@" + host + ":")
 
 		cmd = "yum install -y git && git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
 		remote_exec(host, cmd)
