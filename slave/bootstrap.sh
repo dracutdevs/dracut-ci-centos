@@ -29,18 +29,16 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
         -netdev user,id=user.0,hostfwd=tcp::22222-:22 &
 
     for (( i=0; i < 60; i++ )); do
-        if ! ssh root@127.0.0.2 -p 22222 \
+        if ssh root@127.0.0.2 -p 22222 \
 	    -o UserKnownHostsFile=/dev/null \
 	    -o StrictHostKeyChecking=no \
 	    -o ConnectTimeout=180 \
 	    -o TCPKeepAlive=yes \
 	    -o ServerAliveInterval=2 \
             "git clone https://github.com/dracutdevs/dracut-ci-centos; ./dracut-ci-centos/slave/bootstrap.sh $sha $branch"; then
-            ret=$?
-            (( ret != 255 )) && exit $ret
-        else
             exit 0
         fi
+        (( $? != 255 )) && exit $ret
         sleep 1
     done
     exit 1
