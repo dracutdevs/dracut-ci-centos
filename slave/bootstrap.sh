@@ -41,7 +41,7 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
 	    -o ConnectTimeout=180 \
 	    -o TCPKeepAlive=yes \
 	    -o ServerAliveInterval=2 \
-            "git clone https://github.com/dracutdevs/dracut-ci-centos; ./dracut-ci-centos/slave/bootstrap.sh $sha $branch" \
+            "rm -fr dracut-ci-centos; git clone https://github.com/dracutdevs/dracut-ci-centos; ./dracut-ci-centos/slave/bootstrap.sh $sha $branch" \
             || ret=$?
 
         (( $ret != 255 )) && exit $ret
