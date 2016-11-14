@@ -5,13 +5,18 @@ set -xe
 sha="$1"
 branch="$2"
 
-modprobe kvm_intel nested=1 || :
-modprobe kvm_amd nested=1 || :
+(
+    modprobe kvm_intel nested=1 || :
+    modprobe kvm_amd nested=1 || :
+) &
 
 if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
-    yum -y install qemu-kvm xz
+    if [[ -f F25CI.qcow2.xz ]]; then
+        unxz -T0 F25CI.qcow2.xz &
+    fi
 
-    unxz -T0 F25CI.qcow2.xz
+    yum -y install qemu-kvm
+    wait
 
     [[ -x /usr/bin/qemu ]] && BIN=/usr/bin/qemu && ARGS=""
     $(lsmod | grep -q '^kqemu ') && BIN=/usr/bin/qemu && ARGS="-kernel-kqemu "
