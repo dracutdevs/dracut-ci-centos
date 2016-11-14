@@ -8,6 +8,8 @@ branch="$2"
 (
     modprobe kvm_intel nested=1 || :
     modprobe kvm_amd nested=1 || :
+    firewall-cmd --zone=public --add-port=22222/tcp --permanent
+    firewall-cmd --reload
 ) &
 
 if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
@@ -31,7 +33,7 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
         -no-reboot \
         -device e1000,netdev=user.0 \
         -nographic \
-        -netdev user,id=user.0,hostfwd=tcp::22222-:22 &
+        -netdev user,id=user.0,hostfwd=tcp::22222-:22 &> /var/tmp/qemu.out &
 
     for (( i=0; i < 60; i++ )); do
         ret=0
