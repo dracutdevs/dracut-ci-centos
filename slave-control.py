@@ -202,7 +202,7 @@ def main():
                         branch = ''
 
                 if not branch.startswith("RHEL-"):
-		        cmd = "yum install -y git qemu-kvm & printf '[srv]\npath = /srv\nread only = no\n' > /etc/rsyncd.conf; systemctl start rsyncd; firewall-cmd --zone=public --add-port=873/tcp --permanent; firewall-cmd --reload; wait;"
+		        cmd = "yum install -y git qemu-kvm & printf '[srv]\\npath = /srv\\nread only = no\\n' > /etc/rsyncd.conf; systemctl start rsyncd; firewall-cmd --zone=public --add-port=873/tcp --permanent; firewall-cmd --reload; wait;"
 		        remote_exec(host, cmd)
                         remote_rsync("%s/F25CI.qcow2.gz" % os.environ.get("HOME", "."), "rsync://" + host + "/srv/")
 		        cmd = "git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
