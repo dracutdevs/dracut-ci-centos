@@ -182,7 +182,7 @@ def main():
                         branch = ''
 
                 if not branch.startswith("RHEL-"):
-                        remote_scp("%s/F25CI.qcow2.xz" % os.environ.get("HOME", "."), "root@" + host + ":")
+                        remote_scp("%s/F25CI.qcow2.gz" % os.environ.get("HOME", "."), "root@" + host + ":")
 
 		cmd = "yum install -y git qemu-kvm && git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
 		remote_exec(host, cmd)
