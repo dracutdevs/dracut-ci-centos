@@ -15,15 +15,15 @@ else
     exit 1
 fi
 
-(
-    firewall-cmd --zone=public --add-port=22222/tcp --permanent
-    firewall-cmd --reload
-) &
-
 if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
-    if [[ -f /srv/F25CI.qcow2.gz ]]; then
-        gunzip /srv/F25CI.qcow2.gz &
-    fi
+    (
+        firewall-cmd --zone=public --add-port=22222/tcp --permanent
+        firewall-cmd --reload
+    ) &
+
+    [[ -f /srv/F25CI.qcow2.gz ]]
+
+    gunzip /srv/F25CI.qcow2.gz &
 
     wait
 
