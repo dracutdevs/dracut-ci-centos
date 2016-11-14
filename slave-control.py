@@ -175,6 +175,7 @@ def main():
 		                json_data = duffy_cmd("/Node/get", params)
 		                data = json.loads(json_data)
                         except ValueError:
+                                time.sleep(1)
                                 continue
                         else:
                                 break
