@@ -25,7 +25,6 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
         unxz -T0 F25CI.qcow2.xz &
     fi
 
-    yum -y install qemu-kvm
     wait
 
     [[ -x /usr/bin/qemu ]] && BIN=/usr/bin/qemu && ARGS=""
@@ -34,7 +33,7 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
     [[ -c /dev/kvm && -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm && ARGS=""
     [[ -c /dev/kvm && -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm && ARGS=""
 
-    nohup $BIN $ARGS  \
+    systemd-run $BIN $ARGS  \
         -drive format=qcow2,index=0,media=disk,file=/root/F25CI.qcow2 \
         -m 2048M \
         -smp $(nproc) \
@@ -85,7 +84,7 @@ esac
 
 if [[ $branch =~ RHEL-* ]]; then
      yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-     yum -y install qemu-kvm $(<test/test-rpms.txt)
+     yum -y install $(<test/test-rpms.txt)
 fi
 
 
