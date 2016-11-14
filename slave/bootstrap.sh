@@ -21,7 +21,7 @@ fi
 ) &
 
 if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
-    if [[ -f F25CI.qcow2.xz ]]; then
+    if [[ -f F25CI.qcow2.gz ]]; then
         gunzip F25CI.qcow2.gz &
     fi
 
