@@ -19,7 +19,7 @@ def dprint(msg):
 def duffy_cmd(cmd, params):
 	url_base = "http://admin.ci.centos.org:8080"
 	url = "%s%s?%s" % (url_base, cmd, urllib.urlencode(params))
-	dprint("Duffy API url = " + url)
+	dprint("Duffy API url = " + url_base + cmd)
 	for i in xrange(1,10):
                 try:
                         ret = urllib.urlopen(url).read()
