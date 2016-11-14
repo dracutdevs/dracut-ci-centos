@@ -33,6 +33,7 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
         -no-reboot \
         -device e1000,netdev=user.0 \
         -nographic \
+        -cpu +mpx,+abm,+pdpe1gb,+rdrand,+f16c,+osxsave,+pdcm,+xtpr,+tm2,+est,+smx,+vmx,+ds_cpl,+monitor,+dtes64,+pbe,+tm,+ht,+ss,+acpi,+ds,+vme \
         -netdev user,id=user.0,hostfwd=tcp::22222-:22 &> /var/tmp/qemu.out &
 
     for (( i=0; i < 60; i++ )); do
