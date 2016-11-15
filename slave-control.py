@@ -170,12 +170,17 @@ def main():
 		ssid = None
 	else:
 		params = { "key": key, "ver": args.ver, "arch": args.arch }
+                i = 0
                 while True:
                         try:
 		                json_data = duffy_cmd("/Node/get", params)
 		                data = json.loads(json_data)
                         except ValueError:
-                                time.sleep(1)
+                                i = i + 1
+                                if i > 60:
+                                        print "Duffy: Could not get Node ver: %s, arch: %s" % (args.ver, args.arch)
+                                        sys.exit(255)
+                                time.sleep(i)
                                 continue
                         else:
                                 break
