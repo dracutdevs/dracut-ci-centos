@@ -173,12 +173,13 @@ def main():
                 i = 0
                 while True:
                         try:
+                                print "Duffy: Trying to get a node ver: %s, arch: %s" % (args.ver, args.arch)
 		                json_data = duffy_cmd("/Node/get", params)
 		                data = json.loads(json_data)
                         except ValueError:
                                 i = i + 1
                                 if i > 60:
-                                        print "Duffy: Could not get Node ver: %s, arch: %s" % (args.ver, args.arch)
+                                        print "Duffy: Could not get Node!"
                                         sys.exit(255)
                                 time.sleep(i)
                                 continue
