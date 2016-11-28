@@ -2,6 +2,7 @@
 
 # GPLv2 etc.
 
+from __future__ import print_function
 import os, json, urllib, subprocess, sys, argparse, fcntl, time
 
 github_base = "https://github.com/dracutdevs/"
@@ -10,11 +11,14 @@ git_name = "dracut-ci-centos"
 debug = False
 reboot_count = 0
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 def dprint(msg):
 	global debug
 
 	if debug:
-		print "Debug:: " + msg
+		eprint("Debug:: " + msg)
 
 def duffy_cmd(cmd, params):
 	url_base = "http://admin.ci.centos.org:8080"
@@ -32,7 +36,7 @@ def duffy_cmd(cmd, params):
 def host_done(key, ssid):
 	params = { "key": key, "ssid": ssid }
 	duffy_cmd("/Node/done", params)
-	print "Duffy: Host with ssid %s marked as done" % ssid
+	eprint("Duffy: Host with ssid %s marked as done" % ssid)
 
 def exec_cmd(cmd):
 	dprint("Executing command: '%s'" % ("' '".join(cmd)))
@@ -55,13 +59,13 @@ def remote_exec(host, remote_cmd, port = 22, expected_ret = 0):
 		'-l', 'root',
 		host, remote_cmd ]
 
-	print(">>> Executing remote command: '%s' on %s port %d" % (remote_cmd, host, port))
+	dprint(">>> Executing remote command: '%s' on %s port %d" % (remote_cmd, host, port))
 
 	start = time.time()
 	ret = exec_cmd(cmd)
 	end = time.time()
 
-	print("<<< Remote command finished after %.1f seconds, return code = %d" % (end - start, ret))
+	eprint("<<< Remote command finished after %.1f seconds, return code = %d" % (end - start, ret))
 
 	if ret != expected_ret:
 		raise Exception("Remote command returned code %d, expected %d. Bailing out." % (ret, expected_ret))
@@ -74,13 +78,13 @@ def remote_scp(src, dst, port = 22, expected_ret = 0):
                 '-P', str(port),
                 src, dst ]
 
-	print(">>> Copying: '%s' to %s port %d" % (src, dst, port))
+	eprint(">>> Copying: '%s' to %s port %d" % (src, dst, port))
 
 	start = time.time()
 	ret = exec_cmd(cmd)
 	end = time.time()
 
-	print("<<< Remote command finished after %.1f seconds, return code = %d" % (end - start, ret))
+	eprint("<<< Remote command finished after %.1f seconds, return code = %d" % (end - start, ret))
 
 	if ret != expected_ret:
 		raise Exception("Remote command returned code %d, expected %d. Bailing out." % (ret, expected_ret))
@@ -88,20 +92,20 @@ def remote_scp(src, dst, port = 22, expected_ret = 0):
 def remote_rsync(src, dst, expected_ret = 0):
 	cmd = [ '/usr/bin/rsync', '-Pavor', src, dst ]
 
-	print(">>> Copying: '%s' to %s" % (src, dst))
+	eprint(">>> Copying: '%s' to %s" % (src, dst))
 
 	start = time.time()
 	ret = exec_cmd(cmd)
 	end = time.time()
 
-	print("<<< Command finished after %.1f seconds, return code = %d" % (end - start, ret))
+	eprint("<<< Command finished after %.1f seconds, return code = %d" % (end - start, ret))
 
 	if ret != expected_ret:
 		raise Exception("Command returned code %d, expected %d. Bailing out." % (ret, expected_ret))
 
 def ping_host(host):
 	cmd = [ '/usr/bin/ping', '-q', '-c', '1', '-W', '10', host ]
-	print("Pinging host %s ..." % host)
+	eprint("Pinging host %s ..." % host)
 
 	for i in range(20):
 		ret = exec_cmd(cmd)
@@ -111,12 +115,12 @@ def ping_host(host):
 	if ret != 0:
 		raise Exception("Timeout waiting for ping")
 
-	print("Host %s appears reachable again" % host)
+	eprint("Host %s appears reachable again" % host)
 
 def reboot_host(host):
 	global reboot_count
 
-	print("Rebooting host %s ..." % host)
+	eprint("Rebooting host %s ..." % host)
 
 	# the reboot command races against the graceful exit, so ignore the return code in this case
 	remote_exec(host, "journalctl --no-pager -b && reboot", 255)
@@ -173,13 +177,13 @@ def main():
                 i = 0
                 while True:
                         try:
-                                print "Duffy: Trying to get a node ver: %s, arch: %s" % (args.ver, args.arch)
+                                eprint("Duffy: Trying to get a node ver: %s, arch: %s" % (args.ver, args.arch))
 		                json_data = duffy_cmd("/Node/get", params)
 		                data = json.loads(json_data)
                         except ValueError:
                                 i = i + 1
                                 if i > 60:
-                                        print "Duffy: Could not get Node!"
+                                        eprint("Duffy: Could not get Node!")
                                         sys.exit(255)
                                 time.sleep(i)
                                 continue
@@ -189,7 +193,7 @@ def main():
 		host = data['hosts'][0]
 		ssid = data['ssid']
 
-		print "Duffy: Host provisioning successful, hostname = %s, ssid = %s" % (host, ssid)
+		eprint("Duffy: Host provisioning successful, hostname = %s, ssid = %s" % (host, ssid))
 
 	ret = 0
 
@@ -223,10 +227,10 @@ def main():
 
 		remote_exec(host, cmd, port=(branch.startswith("RHEL-") and 22 or 22222))
 
-		print("All tests succeeded.")
+		eprint("All tests succeeded.")
 
 	except Exception as e:
-		print("Execution failed! See logfile for details: %s" % str(e))
+		eprint("Execution failed! See logfile for details: %s" % str(e))
 		ret = 255
 		if args.keep_on_failure:
 			keep = True
@@ -234,12 +238,12 @@ def main():
 	finally:
 		if ssid:
 			if keep:
-				print "Keeping host %s, ssid = %s" % (host, ssid)
+				eprint("Keeping host %s, ssid = %s" % (host, ssid))
 			else:
 				host_done(key, ssid);
 
 		end = time.time()
-		print("Total time %.1f seconds" % (end - start))
+		eprint("Total time %.1f seconds" % (end - start))
 
 	sys.exit(ret)
 
