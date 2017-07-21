@@ -56,7 +56,11 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
             "rm -fr dracut-ci-centos; git clone https://github.com/dracutdevs/dracut-ci-centos; ./dracut-ci-centos/slave/bootstrap.sh $sha $branch" \
             || ret=$?
 
-        (( $ret != 255 )) && exit $ret
+        if (( $ret != 255 )); then
+            sleep 10
+            exit $ret
+        fi
+
         sleep 1
     done
     exit 1
