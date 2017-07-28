@@ -54,7 +54,8 @@ def remote_exec(host, remote_cmd, port = 22, expected_ret = 0):
 		'-o', 'StrictHostKeyChecking=no',
 		'-o', 'ConnectTimeout=180',
 		'-o', 'TCPKeepAlive=yes',
-		'-o', 'ServerAliveInterval=2',
+		'-o', 'ServerAliveCountMax=3',
+		'-o', 'ServerAliveInterval=15',
                 '-p', str(port),
 		'-l', 'root',
 		host, remote_cmd ]
