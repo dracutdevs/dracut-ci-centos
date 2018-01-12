@@ -224,7 +224,7 @@ def main():
 		        cmd = "yum install -y git qemu-kvm && git clone %s%s.git && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
 		        remote_exec(host, cmd)
 
-		cmd = "TESTS='%s' %s/slave/testsuite.sh '%s'" % (os.environ.get("TESTS", ""), git_name, branch)
+		cmd = "TESTS='%s %s' %s/slave/testsuite.sh '%s'" % (os.environ.get("TESTS", ""), os.environ.get("YAMLTESTS", ""), git_name, branch)
 
 		remote_exec(host, cmd, port=(branch.startswith("RHEL-") and 22 or 22222))
 
