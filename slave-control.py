@@ -180,9 +180,17 @@ def main():
                         try:
                                 eprint("Duffy: Trying to get a node ver: %s, arch: %s" % (args.ver, args.arch))
 		                json_data = duffy_cmd("/Node/get", params)
-		                data = json.loads(json_data)
-		                host = data['hosts'][0]
-		                ssid = data['ssid']
+                                try:
+		                    data = json.loads(json_data)
+                                except Exception as e:
+                                    eprint("Duffy: Got invalid json '%s'!" % json_data)
+                                    raise e
+                                try:
+		                    host = data['hosts'][0]
+		                    ssid = data['ssid']
+                                except Exception as e:                                    
+                                    eprint("Duffy: Got invalid json '%s'!" % json_data)
+                                    raise e
                         except ValueError, TypeError:
                                 i = i + 1
                                 if i > 60:
