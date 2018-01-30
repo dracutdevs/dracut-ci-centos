@@ -181,7 +181,9 @@ def main():
                                 eprint("Duffy: Trying to get a node ver: %s, arch: %s" % (args.ver, args.arch))
 		                json_data = duffy_cmd("/Node/get", params)
 		                data = json.loads(json_data)
-                        except ValueError:
+		                host = data['hosts'][0]
+		                ssid = data['ssid']
+                        except ValueError, TypeError:
                                 i = i + 1
                                 if i > 60:
                                         eprint("Duffy: Could not get Node!")
@@ -190,9 +192,6 @@ def main():
                                 continue
                         else:
                                 break
-
-		host = data['hosts'][0]
-		ssid = data['ssid']
 
 		eprint("Duffy: Host provisioning successful, hostname = %s, ssid = %s" % (host, ssid))
 
