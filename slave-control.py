@@ -191,7 +191,7 @@ def main():
                                 except Exception as e:                                    
                                     eprint("Duffy: Got invalid json '%s'!" % json_data)
                                     raise e
-                        except ValueError, TypeError:
+                        except (ValueError, TypeError):
                                 i = i + 1
                                 if i > 60:
                                         eprint("Duffy: Could not get Node!")
