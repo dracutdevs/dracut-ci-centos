@@ -225,10 +225,10 @@ def main():
 		        cmd = "yum install -y git rsyncd qemu-kvm ; printf '[srv]\\npath = /srv\\nread only = no\\n' > /etc/rsyncd.conf; systemctl start rsyncd; firewall-cmd --zone=public --add-port=873/tcp --permanent; firewall-cmd --reload;setenforce 0;chmod a+rwx /srv"
 		        remote_exec(host, cmd)
                         remote_rsync("%s/F25CI.qcow2.gz" % os.environ.get("HOME", "."), "rsync://" + host + "/srv/")
-		        cmd = "( rm -fr %s; git clone %s%s.git ) && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
+		        cmd = "( rm -fr %s; git clone %s%s.git ) && ./%s/slave/bootstrap.sh '%s' '%s'" % (git_name, github_base, git_name, git_name, sha, branch)
 		        remote_exec(host, cmd)
                 else:
-		        cmd = "yum install -y git qemu-kvm && ( rm -fr '%s'; git clone %s%s.git ) && ./%s/slave/bootstrap.sh '%s' '%s'" % (github_base, git_name, git_name, sha, branch)
+		        cmd = "yum install -y git qemu-kvm && ( rm -fr '%s'; git clone %s%s.git ) && ./%s/slave/bootstrap.sh '%s' '%s'" % (git_name, github_base, git_name, git_name, sha, branch)
 		        remote_exec(host, cmd)
 
 		cmd = "TESTS='%s %s' %s/slave/testsuite.sh '%s'" % (os.environ.get("TESTS", ""), os.environ.get("YAMLTESTS", ""), git_name, branch)
