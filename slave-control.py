@@ -185,13 +185,14 @@ def main():
                                 except Exception as e:
                                     eprint("Duffy: Got invalid json '%s'!" % json_data)
                                     raise e
+
                                 try:
 		                    host = data['hosts'][0]
 		                    ssid = data['ssid']
-                                except Exception as e:                                    
-                                    eprint("Duffy: Got invalid json '%s'!" % json_data)
+                                except Exception as e:
+                                    eprint("Duffy: Got json '%s'!" % json_data)
                                     raise e
-                        except (ValueError, TypeError):
+                        except (ValueError, TypeError, IndexError):
                                 i = i + 1
                                 if i > 60:
                                         eprint("Duffy: Could not get Node!")
