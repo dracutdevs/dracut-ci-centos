@@ -182,7 +182,23 @@ def main():
         host = args.host
         ssid = None
     else:
-        (host, ssid) = get_host(key, args.ver)
+        i = 0
+        while True:
+            (host, ssid) = get_host(key, args.ver)
+            if not host:
+                eprint("Duffy: Could not get Node!")
+                sys.exit(255)
+
+            try:
+                remote_exec(host, "bash -c '[ -e reserved ] && exit 255; > reserved; exit 0'")
+            except:
+                i += 1
+                eprint("Duffy: Got already reserved host, hostname = %s, ssid = %s" % (host, ssid))
+                if i < 10:
+                    continue
+
+            break
+
         eprint("Duffy: Host provisioning successful, hostname = %s, ssid = %s" % (host, ssid))
 
     ret = 0
@@ -208,15 +224,15 @@ def main():
             remote_exec(host, cmd)
             remote_rsync("%s/F25CI.qcow2.gz" % os.environ.get("HOME", "."), "rsync://" + host + "/srv/")
             cmd = "( rm -fr %s; git clone %s%s.git ) && ./%s/slave/bootstrap.sh '%s' '%s'" % (
-            git_name, github_base, git_name, git_name, sha, branch)
+                git_name, github_base, git_name, git_name, sha, branch)
             remote_exec(host, cmd)
         else:
             cmd = "yum install -y git qemu-kvm && ( rm -fr '%s'; git clone %s%s.git ) && ./%s/slave/bootstrap.sh '%s' '%s'" % (
-            git_name, github_base, git_name, git_name, sha, branch)
+                git_name, github_base, git_name, git_name, sha, branch)
             remote_exec(host, cmd)
 
         cmd = "TESTS='%s %s' %s/slave/testsuite.sh '%s'" % (
-        os.environ.get("TESTS", ""), os.environ.get("YAMLTESTS", ""), git_name, branch)
+            os.environ.get("TESTS", ""), os.environ.get("YAMLTESTS", ""), git_name, branch)
 
         remote_exec(host, cmd, port=(branch.startswith("RHEL-") and 22 or 22222))
 
