@@ -3,7 +3,7 @@
 # GPLv2 etc.
 
 from __future__ import print_function
-import os, json, urllib, subprocess, sys, argparse, fcntl, time
+import os, subprocess, sys, argparse, time
 from cicoclient.wrapper import CicoWrapper
 
 github_base = "https://github.com/dracutdevs/"
@@ -25,15 +25,28 @@ def dprint(msg):
 
 
 def get_host(api_key, version):
-    api = CicoWrapper(endpoint="http://admin.ci.centos.org:8080/", api_key=api_key)
-    hosts, ssid = api.node_get(ver=version)
-    for host in hosts:
-        return (host, ssid)
+    while True:
+        api = CicoWrapper(endpoint="http://admin.ci.centos.org:8080/", api_key=api_key)
+        hosts, ssid = api.node_get(ver=version, retry_count=100, retry_interval=10)
+        for host in hosts:
+            if os.path.exists("host_" + host):
+                dprint("Duffy gave as already reserved host " + host)
+                continue
+            f = open("host_" + host, 'w')
+            f.writelines("reserved\n")
+            f.close()
+            return (host, ssid)
+
 
 
 def host_done(api_key, ssid):
     api = CicoWrapper(endpoint="http://admin.ci.centos.org:8080/", api_key=api_key)
-    api.node_done(ssid=ssid)
+    hosts = api.node_done(ssid=ssid)
+    for host in hosts:
+        try:
+            os.unlink("host_" + host)
+        except:
+            pass
     eprint("Duffy: Host with ssid %s marked as done" % ssid)
 
 
@@ -41,6 +54,10 @@ def all_hosts_done(api_key):
     api = CicoWrapper(endpoint="http://admin.ci.centos.org:8080/", api_key=api_key)
     hosts = api.inventory()
     for host in hosts:
+        try:
+            os.unlink("host_" + host)
+        except:
+            pass
         host_done(api_key, hosts[host].get('comment'))
 
 
