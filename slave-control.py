@@ -26,9 +26,12 @@ def dprint(msg):
 
 def get_host(api_key, version):
     api = CicoWrapper(endpoint="http://admin.ci.centos.org:8080/", api_key=api_key)
-    hosts, ssid = api.node_get(ver=version)
+    hosts, ssid = api.node_get(ver=version, retry_count=100, retry_interval=10)
+    if hosts == None:
+        return (None, None)
     for host in hosts:
         return (host, ssid)
+    return (None, None)
 
 
 def host_done(api_key, ssid):
