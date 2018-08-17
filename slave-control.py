@@ -3,7 +3,7 @@
 # GPLv2 etc.
 
 from __future__ import print_function
-import os, json, urllib, subprocess, sys, argparse, fcntl, time
+import os, subprocess, sys, argparse, time
 from cicoclient.wrapper import CicoWrapper
 
 github_base = "https://github.com/dracutdevs/"
@@ -25,13 +25,20 @@ def dprint(msg):
 
 
 def get_host(api_key, version):
-    api = CicoWrapper(endpoint="http://admin.ci.centos.org:8080/", api_key=api_key)
-    hosts, ssid = api.node_get(ver=version, retry_count=100, retry_interval=10)
-    if hosts == None:
-        return (None, None)
-    for host in hosts:
-        return (host, ssid)
-    return (None, None)
+    i = 0
+    while True:
+        api = CicoWrapper(endpoint="http://admin.ci.centos.org:8080/", api_key=api_key)
+        hosts, ssid = api.node_get(ver=version, retry_count=1)
+
+        if hosts == None:
+            i = i + 1
+            if i > 60:
+                return (None, None)
+            time.sleep(i)
+            continue
+
+        for host in hosts:
+            return (host, ssid)
 
 
 def host_done(api_key, ssid):
