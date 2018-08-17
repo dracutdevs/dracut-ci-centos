@@ -28,7 +28,10 @@ def get_host(api_key, version):
     i = 0
     while True:
         api = CicoWrapper(endpoint="http://admin.ci.centos.org:8080/", api_key=api_key)
-        hosts, ssid = api.node_get(ver=version, retry_count=1)
+        try:
+            hosts, ssid = api.node_get(ver=version, retry_count=1)
+        except:
+            pass
 
         if hosts == None:
             i = i + 1
