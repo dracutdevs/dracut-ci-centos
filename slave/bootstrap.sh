@@ -89,6 +89,12 @@ esac
 if [[ $branch =~ RHEL-* ]]; then
     yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
+    if [[ $branch == "RHEL-8" ]]; then
+        # Add a COPR repo with never versions of certain dependencies (like kmod).
+        # Should be removed once CentOS 8 is out and is supported by CentOS CI
+        wget -O /etc/yum.repos.d/mrc0mmand-systemd-centos-ci-epel-7.repo https://copr.fedorainfracloud.org/coprs/mrc0mmand/systemd-centos-ci/repo/epel-7/mrc0mmand-systemd-centos-ci-epel-7.repo
+    fi
+
     if [[ -f test/test-rpms.txt ]]; then
         yum -y install $(<test/test-rpms.txt)
     fi
