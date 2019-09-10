@@ -242,7 +242,7 @@ def main():
                 git_name, github_base, git_name, git_name, sha, branch)
             remote_exec(host, cmd)
         else:
-            cmd = "yum install -y git qemu-kvm && ( rm -fr '%s'; git clone %s%s.git ) && ./%s/slave/bootstrap.sh '%s' '%s'" % (
+            cmd = "yum install -y git qemu-kvm wget && ( rm -fr '%s'; git clone %s%s.git ) && ./%s/slave/bootstrap.sh '%s' '%s'" % (
                 git_name, github_base, git_name, git_name, sha, branch)
             remote_exec(host, cmd)
 
