@@ -48,11 +48,11 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
     for (( i=0; i < 60; i++ )); do
         ret=0
         ssh root@127.0.0.2 -p 22222 \
-	    -o UserKnownHostsFile=/dev/null \
-	    -o StrictHostKeyChecking=no \
-	    -o ConnectTimeout=180 \
-	    -o TCPKeepAlive=yes \
-	    -o ServerAliveInterval=2 \
+            -o UserKnownHostsFile=/dev/null \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=180 \
+            -o TCPKeepAlive=yes \
+            -o ServerAliveInterval=2 \
             "rm -fr dracut-ci-centos; git clone https://github.com/dracutdevs/dracut-ci-centos; ./dracut-ci-centos/slave/bootstrap.sh $sha $branch" \
             || ret=$?
 
@@ -74,21 +74,21 @@ cd dracut
 
 case "$sha" in
     pr:*)
-	git fetch -fu origin refs/pull/${sha#pr:}/head:pr
-	git checkout pr
-	;;
+        git fetch -fu origin refs/pull/${sha#pr:}/head:pr
+        git checkout pr
+        ;;
 
     "")
-	;;
+        ;;
 
     *)
-	git checkout "$sha"
-	;;
+        git checkout "$sha"
+        ;;
 esac
 
 if [[ $branch =~ RHEL-* ]]; then
-     yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-     yum -y install $(<test/test-rpms.txt)
+    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum -y install $(<test/test-rpms.txt)
 fi
 
 
