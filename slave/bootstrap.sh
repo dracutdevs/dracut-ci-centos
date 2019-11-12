@@ -43,6 +43,7 @@ if ! [[ $branch =~ RHEL-* ]] && ! fgrep -q Fedora /etc/redhat-release; then
         -display none \
         -serial null \
         -cpu host \
+        -device virtio-rng-pci \
         -netdev user,id=user.0,hostfwd=tcp::22222-:22 &
 
     for (( i=0; i < 60; i++ )); do
